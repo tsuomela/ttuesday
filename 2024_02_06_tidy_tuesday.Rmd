@@ -1,0 +1,143 @@
+---
+title: "TidyTemplate"
+date: 2024-02-09
+output: html_document
+---
+
+# TidyTuesday
+
+Join the R4DS Online Learning Community in the weekly #TidyTuesday event!
+Every week we post a raw dataset, a chart or article related to that dataset, and ask you to explore the data.
+While the dataset will be “tamed”, it will not always be tidy! As such you might need to apply various R for Data Science techniques to wrangle the data into a true tidy format.
+The goal of TidyTuesday is to apply your R skills, get feedback, explore other’s work, and connect with the greater #RStats community!
+As such we encourage everyone of all skills to participate!
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(tidytuesdayR)
+
+```
+
+# Load the weekly Data
+
+Download the weekly data and make available in the `tt` object.
+
+```{r Load}
+
+tt <- tt_load("2024-02-06")
+
+```
+
+
+# Readme
+
+Take a look at the readme for the weekly data to get insight on the dataset.
+This includes a data dictionary, source, and a link to an article on the data.
+
+```{r Readme, eval = interactive()}
+
+tt
+
+```
+
+
+# Glimpse Data
+
+Take an initial look at the format of the data available.
+
+```{r Glimpse}
+
+tt %>% 
+  map(glimpse)
+
+```
+
+# Wrangle
+
+Explore the data and process it into a nice format for plotting! Access each dataset by name by using a dollarsign after the `tt` object and then the name of the data set.
+
+```{r Wrangle}
+
+heritage_long <- tt$heritage %>%
+  pivot_longer(
+    cols = -c(country),
+    names_to = "year",
+    values_to = "heritage_score"
+  ) %>%
+  mutate(year = as.numeric(year))
+
+heritage_long
+
+```
+
+
+# Visualize
+
+Using your processed dataset, create your unique visualization.
+
+```{r Visualize}
+
+heritage_long %>%
+  ggplot(aes(x = year, y = heritage_score, group = country, color = country)) +
+  geom_line() +
+  labs(
+    title = "UN Cultural Heritage Sites",
+    subtitle = "by Country",
+    x = "Year",
+    y = "Cultural Heritage Sites",
+    caption = "Data Source: TidyTuesday 2024-02-06 | Created by: @tsuomela",
+  ) +
+  theme_minimal()
+  
+
+heritage_long %>%
+  ggplot(aes(x = as.factor(year), y = heritage_score, group = country, color = country)) +
+  geom_line() +
+  geom_point() +
+  labs(
+    title = "UN Cultural Heritage Sites",
+    subtitle = "by Country",
+    x = "Year",
+    y = "Cultural Heritage Sites",
+    caption = "Data Source: TidyTuesday 2024-02-06 | Created by: @tsuomela",
+  ) +
+  theme_minimal()
+
+heritage_long %>%
+  ggplot(aes(
+    x = country,
+    y = heritage_score,
+    color = as.factor(year),
+    shape = as.factor(year)
+  )) +
+  geom_point(size = 3) +
+  geom_line(aes(group = country), color = "grey") +
+    labs(
+    title = "UN Cultural Heritage Sites",
+    subtitle = "by Country",
+    x = "Country",
+    y = "Cultural Heritage Sites",
+    color = "Year",
+    shape = NULL,
+    caption = "Data Source: TidyTuesday 2024-02-06 | Created by: @tsuomela",
+  ) +
+  guides(shape = "none") +
+  theme_minimal()
+
+```
+
+# Save Image
+
+Save your image for sharing. Be sure to use the `#TidyTuesday` hashtag in your post on twitter! 
+
+```{r}
+
+# This will save your most recent plot
+ggsave(
+  filename = "My TidyTuesday Plot.png",
+  device = "png")
+
+```
